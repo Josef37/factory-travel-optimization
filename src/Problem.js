@@ -50,9 +50,8 @@ export default class Problem {
                         ...getPath(state.prev),
                         [state.time]: this.arr[state.positionIndex]
                     };
-                };
+                }
                 console.log("iterations", this.iterationCount, state);
-
                 return getPath(state);
             }
 

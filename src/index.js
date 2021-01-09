@@ -20,6 +20,7 @@ function plotFromInputs() {
     let processingTime = Math.max(0, processingTimeInput.value);
     processingTimeInput.value = processingTime;
 
+    console.log(`arr: ${arr}, processingTime: ${processingTime}`)
     solveAndPlot(arr, processingTime);
 }
 
