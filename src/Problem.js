@@ -1,7 +1,7 @@
 import _ from "lodash";
 import Heap from "heap";
 
-const Factory = {
+export const Factory = {
     INITIAL: -1,
     DONE: -2
 }
@@ -10,7 +10,7 @@ export default class Problem {
     constructor(arr, processingTime) {
         const n = arr.length;
         Object.assign(this, { n, arr, processingTime });
-        const firstNode = {
+        const firstState = {
             time: 0,
             weight: 0,
             positionIndex: 0,
@@ -18,7 +18,7 @@ export default class Problem {
             prev: null
         };
         this.queue = new Heap((node1, node2) => node1.weight - node2.weight)
-        this.queue.push(firstNode)
+        this.queue.push(firstState)
         this.visited = new Set();
         this.values = {};
         this.iterationCount = 0;
@@ -34,53 +34,64 @@ export default class Problem {
             }
             this.visited.add(stateHash);
 
-            // Start processing at current position.
-            if (state.factoryState[state.positionIndex] === Factory.INITIAL) {
-                state.factoryState[state.positionIndex] = this.processingTime;
-            }
-            // Pick stuff up at current position.
-            if (state.factoryState[state.positionIndex] === 0) {
-                state.factoryState[state.positionIndex] = Factory.DONE
-            }
+            this.startProduction(state);
+            this.pickUpProduct(state);
 
             if (this.isDone(state)) {
-                const getPath = (state) => {
-                    if (!state) return {};
-                    return {
-                        ...getPath(state.prev),
-                        [state.time]: this.arr[state.positionIndex]
-                    };
-                }
                 console.log("iterations", this.iterationCount, state);
-                return getPath(state);
+                return this.getPath(state);
             }
 
-            // Wait
-            if (state.factoryState[state.positionIndex] > 0) {
-                const dt = state.factoryState[state.positionIndex];
-                const stateWait = this.makeNewState(state, dt);
-                this.insertIntoQueue(stateWait);
-            }
-            // Move left
-            if (0 < state.positionIndex) {
-                const dt = this.arr[state.positionIndex] - this.arr[state.positionIndex - 1];
-                const stateLeft = this.makeNewState(state, dt, -1);
-                this.insertIntoQueue(stateLeft);
-            }
-            // Move right
-            if (state.positionIndex < this.n - 1) {
-                const dt = this.arr[state.positionIndex + 1] - this.arr[state.positionIndex];
-                const stateRight = this.makeNewState(state, dt, 1);
-                this.insertIntoQueue(stateRight);
-            }
+            this.exploreAllSubsequentStates(state);
 
             this.iterationCount++;
+        }
+    }
+
+    startProduction(state) {
+        if (state.factoryState[state.positionIndex] === Factory.INITIAL) {
+            state.factoryState[state.positionIndex] = this.processingTime;
+        }
+    }
+
+    pickUpProduct(state) {
+        if (state.factoryState[state.positionIndex] === 0) {
+            state.factoryState[state.positionIndex] = Factory.DONE;
+        }
+    }
+
+    exploreAllSubsequentStates(state) {
+        // Wait
+        if (state.factoryState[state.positionIndex] > 0) {
+            const dt = state.factoryState[state.positionIndex];
+            const stateWait = this.makeNewState(state, dt);
+            this.insertIntoQueue(stateWait);
+        }
+        // Move left
+        if (0 < state.positionIndex) {
+            const dt = this.arr[state.positionIndex] - this.arr[state.positionIndex - 1];
+            const stateLeft = this.makeNewState(state, dt, -1);
+            this.insertIntoQueue(stateLeft);
+        }
+        // Move right
+        if (state.positionIndex < this.n - 1) {
+            const dt = this.arr[state.positionIndex + 1] - this.arr[state.positionIndex];
+            const stateRight = this.makeNewState(state, dt, 1);
+            this.insertIntoQueue(stateRight);
         }
     }
 
     isDone(state) {
         return state.positionIndex === this.n - 1
             && state.factoryState.every(s => s === Factory.DONE)
+    }
+
+    getPath(state) {
+        if (!state) return {};
+        return {
+            ...this.getPath(state.prev),
+            [state.time]: this.arr[state.positionIndex]
+        };
     }
 
     hash(state) {
