@@ -26,8 +26,14 @@ export default class Chart {
             options: {
                 animation: false,
                 scales: {
-                    xAxes: [{ type: "linear" }],
-                    yAxes: [{ type: "linear" }]
+                    xAxes: [{
+                        type: "linear",
+                        scaleLabel: { display: true, labelString: "time" }
+                    }],
+                    yAxes: [{
+                        type: "linear",
+                        scaleLabel: { display: true, labelString: "position" }
+                    }]
                 }
             }
         });
