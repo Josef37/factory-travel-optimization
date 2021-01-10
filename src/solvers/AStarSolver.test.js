@@ -1,9 +1,9 @@
-import Solver, { Factory } from "./Solver";
+import AStarSolver, { Factory } from "./AStarSolver";
 
 describe("Problem", () => {
     describe("hash", () => {
         it("hashes only neccessary items", () => {
-            const solver = new Solver([0, 1, 2], 1)
+            const solver = new AStarSolver([0, 1, 2], 1)
             const state = {
                 time: 0,
                 weight: 0,
@@ -17,7 +17,7 @@ describe("Problem", () => {
 
     describe("makeNewState", () => {
         it("works for time, position and factories", () => {
-            const problem = new Solver([0, 3, 7, 10], 2)
+            const problem = new AStarSolver([0, 3, 7, 10], 2)
             const state = {
                 time: 1,
                 positionIndex: 1,
@@ -35,7 +35,7 @@ describe("Problem", () => {
 
     describe("insertIntoQueue", () => {
         it("adds new states", () => {
-            const problem = new Solver([0], 1)
+            const problem = new AStarSolver([0], 1)
             const initialSize = problem.queue.size()
             const state = {
                 time: 0,
@@ -46,7 +46,7 @@ describe("Problem", () => {
             expect(problem.queue.size()).toEqual(initialSize + 1)
         })
         it("adds better states (without removing worse)", () => {
-            const problem = new Solver([0], 1)
+            const problem = new AStarSolver([0], 1)
             const initialSize = problem.queue.size()
             const worseState = {
                 time: 2,
@@ -61,7 +61,7 @@ describe("Problem", () => {
             expect(problem.queue.size()).toEqual(initialSize + 2)
         })
         it("skips worse states", () => {
-            const problem = new Solver([0], 1)
+            const problem = new AStarSolver([0], 1)
             const initialSize = problem.queue.size()
             const betterState = {
                 time: 1,
@@ -79,7 +79,7 @@ describe("Problem", () => {
 
     describe("heuristic", () => {
         it("works when everything is picked up", () => {
-            const problem = new Solver([0, 3, 7], 2)
+            const problem = new AStarSolver([0, 3, 7], 2)
             const state = {
                 positionIndex: 0,
                 factoryState: [Factory.DONE, Factory.DONE, Factory.DONE]
@@ -88,7 +88,7 @@ describe("Problem", () => {
         });
 
         it("works when right side is done", () => {
-            const problem = new Solver([0, 3, 7, 10], 1)
+            const problem = new AStarSolver([0, 3, 7, 10], 1)
             const state = {
                 positionIndex: 2,
                 factoryState: [Factory.INITIAL, Factory.DONE, Factory.DONE, Factory.DONE]
@@ -97,7 +97,7 @@ describe("Problem", () => {
         });
 
         it("works when left side is done", () => {
-            const problem = new Solver([0, 3, 7, 10], 1)
+            const problem = new AStarSolver([0, 3, 7, 10], 1)
             const state = {
                 positionIndex: 1,
                 factoryState: [Factory.DONE, Factory.DONE, Factory.DONE, Factory.INITIAL]
@@ -106,7 +106,7 @@ describe("Problem", () => {
         });
 
         it("works when everything is in line", () => {
-            const problem = new Solver([0, 3, 7, 10], 0)
+            const problem = new AStarSolver([0, 3, 7, 10], 0)
             const state = {
                 positionIndex: 0,
                 factoryState: [Factory.DONE, Factory.INITIAL, Factory.INITIAL, Factory.DONE]
@@ -115,7 +115,7 @@ describe("Problem", () => {
         });
 
         it("works when exit is on the right", () => {
-            const problem = new Solver([0, 3, 7, 10], 3)
+            const problem = new AStarSolver([0, 3, 7, 10], 3)
             const state = {
                 positionIndex: 1,
                 factoryState: [Factory.INITIAL, Factory.DONE, Factory.INITIAL, Factory.DONE]
@@ -124,5 +124,22 @@ describe("Problem", () => {
         });
     });
 
-    describe("solve", () => { });
+    describe("solve", () => {
+        it("solves simple cases", () => {
+            const arr = [0, 1, 2]
+            const cases = [
+                { proc: 0, total: 2 },
+                { proc: 1, total: 5 },
+                { proc: 2, total: 6 },
+                { proc: 3, total: 6 },
+                { proc: 4, total: 6 },
+                { proc: 5, total: 7 },
+            ]
+            for (const { proc: processingTime, total: totalTime } of cases) {
+                const solver = new AStarSolver(arr, processingTime)
+                const path = solver.solve()
+                expect(Math.max(...Object.keys(path))).toEqual(totalTime)
+            }
+        })
+    });
 });

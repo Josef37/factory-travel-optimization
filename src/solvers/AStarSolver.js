@@ -12,7 +12,7 @@ export const Direction = {
     RIGHT: "RIGHT",
 }
 
-export default class Solver {
+export default class AStarSolver {
     constructor(arr, processingTime) {
         const n = arr.length;
         Object.assign(this, { n, arr, processingTime });
@@ -27,10 +27,11 @@ export default class Solver {
         this.queue.push(firstState)
         this.visited = new Set();
         this.values = {};
-        this.iterationCount = 0;
     }
 
     solve() {
+        let iterationCount = 0;
+
         while (!this.queue.empty()) {
             const state = this.queue.pop();
 
@@ -44,13 +45,14 @@ export default class Solver {
             this.pickUpProduct(state);
 
             if (this.isDone(state)) {
-                console.log("iterations", this.iterationCount, state);
+                if (process.env.NODE_ENV !== "test")
+                    console.log("iterations", iterationCount, state);
                 return this.getPath(state);
             }
 
             this.exploreAllSubsequentStates(state);
 
-            this.iterationCount++;
+            iterationCount++;
         }
     }
 
