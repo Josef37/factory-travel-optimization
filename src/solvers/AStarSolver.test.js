@@ -137,7 +137,7 @@ describe("Problem", () => {
             ]
             for (const { proc: processingTime, total: totalTime } of cases) {
                 const solver = new AStarSolver(arr, processingTime)
-                const path = solver.solve()
+                const { path } = solver.solve()
                 expect(Math.max(...Object.keys(path))).toEqual(totalTime)
             }
         })

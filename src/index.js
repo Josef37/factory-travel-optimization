@@ -14,8 +14,11 @@ const solvers = {
 function solveAndPlot(solverName, arr, processingTime) {
     const Solver = solvers[solverName]
     const solver = new Solver(arr, processingTime);
-    const path = timed(solver.solve.bind(solver));
+    const [{ path, iterationCount, state }, time] = timed(solver.solve.bind(solver));
+    document.querySelector("#iterationCount").textContent = iterationCount.toLocaleString("en")
+    document.querySelector("#time").textContent = time.toLocaleString("en")
     chart.plotPath(path);
+    console.log("final state", state)
 }
 
 function plotFromInputs() {
@@ -30,14 +33,14 @@ function plotFromInputs() {
     let processingTime = Math.max(0, processingTimeInput.value);
     processingTimeInput.value = processingTime;
 
-    console.log(`solver: ${solverName}, arr: ${arr}, processingTime: ${processingTime}`)
-    solveAndPlot(solverName, arr, processingTime);
+    console.log(`solver: ${solverName}\narr: ${arr}\nprocessingTime: ${processingTime}`)
+    _.defer(() => solveAndPlot(solverName, arr, processingTime))
 }
 
-const chart = new Chart("chart");
 const solverNameInput = document.querySelector("#solverName")
 const arrInput = document.querySelector("#arr");
 const processingTimeInput = document.querySelector("#processingTime");
-document.querySelector("#inputs").addEventListener("change", plotFromInputs);
 
+const chart = new Chart("chart");
+document.querySelector("#inputs").addEventListener("change", plotFromInputs);
 plotFromInputs()

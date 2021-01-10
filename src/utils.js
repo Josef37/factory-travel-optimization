@@ -1,7 +1,7 @@
 export function timed(func, ...args) {
-    const label = func.name;
-    console.time(label);
+    const before = performance.now()
     const returnValue = func(...args);
-    console.timeEnd(label);
-    return returnValue;
+    const after = performance.now()
+    const time = after - before
+    return [returnValue, time];
 }

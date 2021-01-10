@@ -112,8 +112,8 @@ describe("StrategySolver", () => {
             for (const processingTime of [0, 1, 2]) {
                 const solver1 = new AStarSolver(arr, processingTime)
                 const solver2 = new StrategySolver(arr, processingTime)
-                const path1 = solver1.solve()
-                const path2 = solver2.solve()
+                const { path: path1 } = solver1.solve()
+                const { path: path2 } = solver2.solve()
                 expect(path1).toEqual(path2)
             }
         })

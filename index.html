@@ -4,28 +4,37 @@
 <head>
     <title>Parcel Sandbox</title>
     <meta charset="UTF-8" />
+    <style>
+        #inputs,
+        #stats {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px 30px;
+            margin: 4% 2%;
+        }
+    </style>
 </head>
 
 <body>
-    <div id="inputs" style="
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 10px 30px;
-        margin-bottom: 30px;
-      ">
+    <div id="inputs">
         <label for="arr">arr</label>
-        <input type="text" name="arr" id="arr" value="2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71" />
+        <input type="text" name="arr" id="arr" value="2 3 5 7 11 13 17 19 23 29 31 37 41 43" />
         <label for="processingTime">processingTime</label>
-        <input type="number" name="processingTime" id="processingTime" value="29" />
+        <input type="number" name="processingTime" id="processingTime" value="15" />
         <label for="solverName">Solver Name</label>
         <select name="solverName" id="solverName">
-            <option value="dijkstra">Dijkstra</option>
-            <option value="aStar">A*</option>
             <option value="strategy">Strategy</option>
+            <option value="aStar">A*</option>
+            <option value="dijkstra">Dijkstra</option>
         </select>
     </div>
-
     <canvas id="chart"></canvas>
+    <div id="stats">
+        <div>Iterations</div>
+        <div id="iterationCount">0</div>
+        <div>Time (in ms)</div>
+        <div id="time">0</div>
+    </div>
 
     <script src="src/index.js"></script>
 </body>

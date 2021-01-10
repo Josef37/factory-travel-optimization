@@ -45,9 +45,7 @@ export default class AStarSolver {
             this.pickUpProduct(state);
 
             if (this.isDone(state)) {
-                if (process.env.NODE_ENV !== "test")
-                    console.log("iterations", iterationCount, state);
-                return this.getPath(state);
+                return { path: this.getPath(state), iterationCount, state }
             }
 
             this.exploreAllSubsequentStates(state);

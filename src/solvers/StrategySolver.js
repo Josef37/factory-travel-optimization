@@ -6,7 +6,9 @@ export default class StrategySolver extends AStarSolver {
         const leftFactoryState = state.factoryState[state.positionIndex - 1]
         const rightFactoryState = state.factoryState[state.positionIndex + 1]
 
-        let canLeft = leftFactoryState !== undefined && leftFactoryState !== Factory.DONE
+        const leftFactoryIsDone = leftFactoryState === undefined || leftFactoryState === Factory.DONE
+
+        let canLeft = !leftFactoryIsDone
         if (canLeft && state.direction === Direction.LEFT) {
             return {
                 [Direction.WAIT]: false,
@@ -15,8 +17,7 @@ export default class StrategySolver extends AStarSolver {
             }
         }
 
-        let canWait = currentFactoryState !== Factory.DONE &&
-            (leftFactoryState === undefined || leftFactoryState === Factory.DONE)
+        let canWait = currentFactoryState !== Factory.DONE && leftFactoryIsDone
         if (canWait && state.direction === Direction.LEFT) {
             return {
                 [Direction.WAIT]: true,
