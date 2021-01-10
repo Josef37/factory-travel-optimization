@@ -3,10 +3,16 @@ import Heap from "heap";
 
 export const Factory = {
     INITIAL: -1,
-    DONE: -2
+    DONE: -2,
 }
 
-export default class Problem {
+export const Direction = {
+    LEFT: "LEFT",
+    WAIT: "WAIT",
+    RIGHT: "RIGHT",
+}
+
+export default class Solver {
     constructor(arr, processingTime) {
         const n = arr.length;
         Object.assign(this, { n, arr, processingTime });
@@ -61,24 +67,55 @@ export default class Problem {
     }
 
     exploreAllSubsequentStates(state) {
-        // Wait
-        if (state.factoryState[state.positionIndex] > 0) {
-            const dt = state.factoryState[state.positionIndex];
-            const stateWait = this.makeNewState(state, dt);
-            this.insertIntoQueue(stateWait);
+        const directions = this.getPossibleDirections(state)
+        if (directions[Direction.WAIT]) {
+            this.wait(state);
         }
-        // Move left
-        if (0 < state.positionIndex) {
-            const dt = this.arr[state.positionIndex] - this.arr[state.positionIndex - 1];
-            const stateLeft = this.makeNewState(state, dt, -1);
-            this.insertIntoQueue(stateLeft);
+        if (directions[Direction.LEFT]) {
+            this.moveLeft(state);
         }
-        // Move right
-        if (state.positionIndex < this.n - 1) {
-            const dt = this.arr[state.positionIndex + 1] - this.arr[state.positionIndex];
-            const stateRight = this.makeNewState(state, dt, 1);
-            this.insertIntoQueue(stateRight);
+        if (directions[Direction.RIGHT]) {
+            this.moveRight(state);
         }
+    }
+
+    getPossibleDirections(state) {
+        return {
+            [Direction.WAIT]: this.canWait(state),
+            [Direction.LEFT]: this.canMoveLeft(state),
+            [Direction.RIGHT]: this.canMoveRight(state),
+        }
+    }
+
+    canWait(state) {
+        const factoryState = state.factoryState[state.positionIndex]
+        return factoryState > 0 || factoryState === Factory.INITIAL
+    }
+    wait(state) {
+        const dt = state.factoryState[state.positionIndex];
+        const stateWait = this.makeNewState(state, dt);
+        stateWait.direction = Direction.WAIT;
+        this.insertIntoQueue(stateWait);
+    }
+
+    canMoveLeft(state) {
+        return 0 < state.positionIndex;
+    }
+    moveLeft(state) {
+        const dt = this.arr[state.positionIndex] - this.arr[state.positionIndex - 1];
+        const stateLeft = this.makeNewState(state, dt, -1);
+        stateLeft.direction = Direction.LEFT;
+        this.insertIntoQueue(stateLeft);
+    }
+
+    canMoveRight(state) {
+        return state.positionIndex < this.n - 1;
+    }
+    moveRight(state) {
+        const dt = this.arr[state.positionIndex + 1] - this.arr[state.positionIndex];
+        const stateRight = this.makeNewState(state, dt, 1);
+        stateRight.direction = Direction.RIGHT;
+        this.insertIntoQueue(stateRight);
     }
 
     isDone(state) {
@@ -98,11 +135,11 @@ export default class Problem {
         return `${state.positionIndex}/${state.factoryState.toString()}`
     }
 
-    makeNewState(oldState, dt, di = 0) {
+    makeNewState(oldState, deltaTime, deltaIndex = 0) {
         const state = this.clone(oldState);
-        state.time += dt;
-        state.positionIndex += di;
-        state.factoryState = state.factoryState.map((t) => t < 0 ? t : Math.max(0, t - dt));
+        state.time += deltaTime;
+        state.positionIndex += deltaIndex;
+        state.factoryState = state.factoryState.map(t => t < 0 ? t : Math.max(0, t - deltaTime));
         state.prev = oldState;
         state.weight = state.time + this.heuristic(state);
         return state;
@@ -127,21 +164,13 @@ export default class Problem {
 
     heuristic(state) {
         const leftIndex = _.findIndex(state.factoryState, s => s !== Factory.DONE)
-        const rightIndex = _.findLastIndex(state.factoryState, s => s !== Factory.DONE)
 
-        if (leftIndex === -1 && rightIndex === -1) {
+        if (leftIndex === -1) {
             return Math.abs(this.arr[this.n - 1] - this.arr[state.positionIndex]);
-        } else if (leftIndex === -1 || rightIndex === -1) {
-            const index = leftIndex + rightIndex + 1;
-            let minWayToGo = 0;
-            minWayToGo += Math.abs(this.arr[index] - this.arr[state.positionIndex]);
-            minWayToGo += Math.abs(this.arr[this.n - 1] - this.arr[index]);
-            return minWayToGo;
         } else {
             let minWayToGo = 0;
             minWayToGo += Math.abs(this.arr[leftIndex] - this.arr[state.positionIndex]);
-            minWayToGo += Math.abs(this.arr[leftIndex] - this.arr[rightIndex]);
-            minWayToGo += Math.abs(this.arr[this.n - 1] - this.arr[rightIndex]);
+            minWayToGo += Math.abs(this.arr[this.n - 1] - this.arr[leftIndex]);
             return minWayToGo;
         }
     }

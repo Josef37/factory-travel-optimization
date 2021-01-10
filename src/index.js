@@ -1,10 +1,10 @@
 import _ from "lodash";
-import Problem from "./Problem";
+import Solver from "./Solver";
 import Chart from "./chart";
 import { timed } from "./utils";
 
 function solveAndPlot(arr, processingTime) {
-    const problem = new Problem(arr, processingTime);
+    const problem = new Solver(arr, processingTime);
     const path = timed(problem.solve.bind(problem));
     chart.plotPath(path);
 }
