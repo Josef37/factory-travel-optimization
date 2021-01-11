@@ -4,9 +4,9 @@ Answer to a [question on StackOverflow](https://stackoverflow.com/questions/6563
 
 ## Live Demo
 
-[![Screenshot of the app](docs/screenshot.jpg)](https://josef37.github.io/factory-travel-optimization/)
+[Link to Demo (or click the image)](https://josef37.github.io/factory-travel-optimization/)
 
-[Link to Demo](https://josef37.github.io/factory-travel-optimization/)
+[![Screenshot of the app](docs/screenshot.jpg)](https://josef37.github.io/factory-travel-optimization/)
 
 ## Problem statement
 
@@ -28,16 +28,16 @@ Answer to a [question on StackOverflow](https://stackoverflow.com/questions/6563
 
 ## Solution summary
 
-Since `0 < arr[i] < exit-pos`, we always start at the first factory and finish at the last. It's trivial to add the remaining time.
+Since `0 < arr[i] < exit-pos`, we always **start at the first** factory and **finish at the last**. It's trivial to add the remaining time.
 
-The solution includes three different algorithms (can be selected via a drop-down):
+The solution includes three different algorithms, which can be selected via a drop-down:
 
-### 1. Dijkstra
+### 1. Dijkstra's algorithm
 
 Explores all states and finds the minimum time to a final state:
 
 * A state consists of the current **position** and the **state of all factories** (How long until product is done? Was it picked up?). 
-* From each state either moves **left** (to start) or **right** (to exit) or **waits** until production is finished.
+* From each state either **wait** until production is finished, move **left** (to start) or **right** (to exit).
 * Obviously uses [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm).
 
 ### 2. A* search algorithm
@@ -52,7 +52,7 @@ The improvement is significant (even for small inputs).
 
 This version uses the same search as the previous, but restricts new states being explored:
 
-It follows the strategy to **finish everything left of you, once you turn** from going right to going left. And waiting is only allowed at the very left (unfinished factory).
+It follows the strategy to **finish everything left of you, once you turn** from going right to going left. And waiting is only allowed at leftmost unfinished factory.
 
 1. You can move left, only when there is a unfinished factory left of you. 
 2. You can wait, only if you are at the leftmost unfinished factory.
@@ -83,15 +83,18 @@ These are rough timings for this input:
 
 ## How to get to this solution
 
-First I chose to visualize the solution. And solve it by using Dijkstra's algorithm.
+First I chose to visualize the solution and solve it by using Dijkstra's algorithm.
 
 After inspecting the paths for various inputs, I noticed the pattern described in the "Strategy" solution: Going right, turning around and then completing this chunk of factories.
 
 ## Possible Improvements
 
-One could take the strategy and just chunk the factories array.  
-Each chunk `[a1, a2, ..., an]` takes `3 * (an-a1) + min(0, processingTime - 2 * (an-a1))` time to finish (first addend: total travel time; second addend: wait time).  
+One could take the strategy and chunk the factories array.
+
+Each chunk `[a1, a2, ..., an]` takes `travelTime + waitTime = [3 * (an-a1)] + [min(0, processingTime - 2 * (an-a1))]` time to finish.  
 And travelling between chunks `[a1, ..., an]` and `[b1, ..., bm]` takes `b1 - an` time.
+
+Now one has to determine the chunks, which minimize the total time.
 
 ## Development
 
